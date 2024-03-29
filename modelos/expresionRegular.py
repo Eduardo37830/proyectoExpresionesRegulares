@@ -37,9 +37,3 @@ class ModeloExpresionesRegulares:
             for simbolo, estados_siguientes in transiciones.items():
                 for estado_siguiente in estados_siguientes:
                     print(f"{estado} --({simbolo})--> {estado_siguiente}")
-
-
-# Ejemplo de uso
-modelo = ModeloExpresionesRegulares()
-modelo.generar_automata("abc*")
-modelo.mostrar_automata()
