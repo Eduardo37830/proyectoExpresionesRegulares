@@ -36,8 +36,8 @@ class Automata:
             graph.add_edge(edge)
 
         # Guardar y mostrar el diagrama
-        graph.write_png('automata.png')
-        graph.write_pdf('automata.pdf')
+        graph.write_png('automata.png', encoding='utf-8')
+        graph.write_pdf('automata.pdf', encoding='utf-8')
 
 def build_automaton_from_regex(regex):
     states = set()  # Conjunto de estados
@@ -53,26 +53,46 @@ def build_automaton_from_regex(regex):
         states.add(to_state)
         alphabet.add(input_symbol)
         transitions[(from_state, input_symbol)] = to_state
-    current_state = initial_state
     
-    for i in range(len(regex)):
-        if i == 0:
-            add_transition('q0', 'q1', regex[i])
-        elif i == len(regex) - 1:
+    current_state = initial_state
+    i = 0
+    
+    while i < len(regex):
+        if i == len(regex) - 1:
             if regex[i] == "*":
-                add_transition('q1', 'q1', "")
+                add_transition(current_state, current_state, "")
             elif regex[i] == "+":
-                add_transition('q1', 'q2', "")
-                accepting_states.add('q2')
+                add_transition(current_state, current_state, "")
+                accepting_states.add(current_state)
             else:
-                add_transition('q1', 'q2', regex[i])
-                accepting_states.add('q2')
+                add_transition(current_state, 'q' + str(i + 1), regex[i])
+                accepting_states.add('q' + str(i + 1))
+        elif regex[i] == "|":
+
+            new_state1='q'+ str(i)
+            new_state2='q'+ str(i)
+            accepting_states.add(new_state1)
+            accepting_states.add(new_state2)
+            current_state = initial_state
+            i += 1
+            continue
+        elif regex[i + 1] == "*":
+            new_state = 'q' + str(i + 1)
+            add_transition(current_state, current_state, regex[i])
+            current_state = new_state
+            i += 1
+        elif regex[i + 1] == "+":
+            new_state = 'q' + str(i + 1)
+            add_transition(current_state, new_state, regex[i])
+            add_transition(new_state, new_state, regex[i])
+            accepting_states.add(new_state)
+            current_state = new_state
+            i += 1
         else:
             new_state = 'q' + str(i + 1)
-            if regex[i] == "*":
-                add_transition('q' + str(i), 'q' + str(i), "")
-            else:
-                add_transition('q' + str(i), new_state, regex[i])
+            add_transition(current_state, new_state, regex[i])
+            current_state = new_state
+        i += 1
 
     return Automata(states, alphabet, transitions, initial_state, accepting_states)
 
