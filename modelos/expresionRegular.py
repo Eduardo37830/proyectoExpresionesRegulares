@@ -1,5 +1,3 @@
-# NOTA:Este código fue tomado de exp3.py
-
 import pydot
 
 

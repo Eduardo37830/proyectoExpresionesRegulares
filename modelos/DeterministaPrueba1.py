@@ -79,6 +79,7 @@ def build_automaton_from_regex(regex):
         elif regex[i + 1] == "*":
             new_state = 'q' + str(i + 1)
             add_transition(current_state, current_state, regex[i])
+            accepting_states.add(current_state)
             current_state = new_state
             i += 1
         elif regex[i + 1] == "+":
@@ -99,4 +100,5 @@ def build_automaton_from_regex(regex):
 # Ejemplo de uso:
 regex = input("Ingrese la expresión regular: ")
 automaton = build_automaton_from_regex(regex)
+print(automaton.states)
 automaton.draw()
