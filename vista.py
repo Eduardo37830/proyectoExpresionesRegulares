@@ -8,6 +8,7 @@ class AutomataGUI:
     def __init__(self, master):
         self.master = master
         master.title('Visualizador de Autómatas')
+        self.master.geometry("1920x1080")
 
         # Etiqueta de instrucción
         self.label = tk.Label(master, text="Ingrese la expresión regular:")
@@ -32,9 +33,10 @@ class AutomataGUI:
                 # Aquí llamarías a la función para generar el autómata y luego dibujarlo
                 # Por ejemplo: automaton = ControladorExpresion.build_automaton_from_regex(regex)
                 # automaton.draw()  # Asumiendo que esta función guarda una imagen llamada 'automata.png'
-                ControladorExpresion.build_automaton_from_regex(regex).draw()
+                automaton = ControladorExpresion.build_automaton_from_regex(regex)
+
                 # Por simplicidad, asumiremos que la imagen se guarda como 'automata.png'
-                image_path = 'automata.png'
+                image_path = automaton.draw()
                 self.display_image(image_path)
 
             except Exception as e:
@@ -47,7 +49,6 @@ class AutomataGUI:
         try:
             image = Image.open(image_path) # Redimensionar si es necesario
             photo = ImageTk.PhotoImage(image)
-
             self.image_label.configure(image=photo)
             self.image_label.image = photo  # Mantener referencia
         except Exception as e:

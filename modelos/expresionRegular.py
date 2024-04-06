@@ -2,6 +2,7 @@ import pydot
 
 
 class Automata:
+    counter = 0
     def __init__(self, states, alphabet, transitions, initial_state, accepting_states):
         self.states = states
         self.alphabet = alphabet
@@ -37,7 +38,9 @@ class Automata:
             graph.add_edge(edge)
 
         # Guardar y mostrar el diagrama
-        graph.write_png('automata.png', encoding='utf-8')
-        graph.write_pdf('automata.pdf', encoding='utf-8')
+        Automata.counter += 1  # Incrementa el contador cada vez que se dibuja un nuevo autómata
+        filename_png = f'automata_{Automata.counter}.png'
+        graph.write_png(filename_png, encoding='utf-8')
+        return filename_png
 
 
