@@ -22,6 +22,10 @@ class AutomataGUI:
         self.generate_button = tk.Button(master, text="Generar y Mostrar Autómata", command=self.generate_automaton)
         self.generate_button.pack()
 
+        # Botón para seleccionar imagen de autómata ya generado
+        self.select_button = tk.Button(master, text="Seleccionar imagen de autómata", command=self.seleccionar_automataPNG)
+        self.select_button.pack()
+
         # Área de imagen (inicialmente vacía)
         self.image_label = tk.Label(master)
         self.image_label.pack()
@@ -53,6 +57,17 @@ class AutomataGUI:
             self.image_label.image = photo  # Mantener referencia
         except Exception as e:
             messagebox.showerror("Error", "No se pudo cargar la imagen del autómata: " + str(e))
+
+    def seleccionar_automataPNG(self):
+        filename = filedialog.askopenfilename(filetypes=[("Archivos de imagen", "*.png;*.jpg;*.jpeg")])
+        if filename:
+            try:
+                self.automataPNG = Image.open(filename)
+                self.automataPNG = ImageTk.PhotoImage(self.automataPNG)
+                self.image_label.configure(image=self.automataPNG)
+                self.image_label.image = self.automataPNG  # Mantener referencia
+            except Exception as e:
+                messagebox.showerror("Error", "No se pudo cargar la imagen seleccionada: " + str(e))
 
 
 if __name__ == "__main__":

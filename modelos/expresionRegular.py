@@ -1,3 +1,5 @@
+import os
+
 import pydot
 
 
@@ -37,9 +39,14 @@ class Automata:
             edge = pydot.Edge(from_state, to_state, label=label)
             graph.add_edge(edge)
 
+        folder_path = 'imagenesGeneradas'
+        # Verifica si la carpeta existe. Si no, la crea.
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+
         # Guardar y mostrar el diagrama
         Automata.counter += 1  # Incrementa el contador cada vez que se dibuja un nuevo autómata
-        filename_png = f'automata_{Automata.counter}.png'
+        filename_png = f'{folder_path}/automata_{Automata.counter}.png'
         graph.write_png(filename_png, encoding='utf-8')
         return filename_png
 
