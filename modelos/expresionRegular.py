@@ -1,5 +1,6 @@
 import os
 import pydot
+import hashlib
 
 
 class Automata:
@@ -45,7 +46,11 @@ class Automata:
 
         # Guardar y mostrar el diagrama
         Automata.counter += 1  # Incrementa el contador cada vez que se dibuja un nuevo autómata
-        filename_png = f'{folder_path}/automata_{Automata.counter}.png'
+
+        # Generar un hash único para el nombre del archivo
+        filename = f'{self.states}{self.alphabet}{self.transitions}{self.current_state}{self.accepting_states}' # Genera una cadena a partir de los atributos del autómata
+        filename_hash = hashlib.md5(filename.encode()).hexdigest() # Genera un hash MD5 a partir de la cadena de entrada
+        filename_png = f'{folder_path}/automata_{filename_hash}_{Automata.counter}.png' # Nombre del archivo PNG
         graph.write_png(filename_png, encoding='utf-8')
         return filename_png
 
