@@ -23,7 +23,7 @@ class AutomataGUI:
         self.generate_button.pack()
 
         # Botón para seleccionar imagen de autómata ya generado
-        self.select_button = tk.Button(master, text="Seleccionar imagen de autómata", command=self.seleccionar_automataPNG)
+        self.select_button = tk.Button(master, text="Seleccionar Autómata", command=self.seleccionar_automataPNG)
         self.select_button.pack()
 
         # Área de imagen (inicialmente vacía)
