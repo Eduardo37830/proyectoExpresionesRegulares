@@ -26,7 +26,7 @@ class AutomataGUI:
         self.image_label = tk.Label(master)
         self.image_label.pack()
 
-        self.generated_images = []
+        self.generated_data = []  # Almacenamos tuplas de (ruta_de_imagen, expresion_regular)
         self.register_file = "automata_register.txt"
         self.read_register()
 
@@ -36,7 +36,7 @@ class AutomataGUI:
             try:
                 automaton = ControladorExpresion.build_automaton_from_regex(regex)
                 image_path = automaton.draw()
-                self.generated_images.append(image_path)
+                self.generated_data.append((image_path, regex))  # Guardar tupla
                 self.display_image(image_path)
                 self.write_register()
             except Exception as e:
@@ -57,18 +57,19 @@ class AutomataGUI:
         selection_window = tk.Toplevel(self.master)
         selection_window.geometry("800x600")
         selection_window.title("Seleccione un Autómata")
-        listbox = tk.Listbox(selection_window)
-        listbox = tk.Listbox(selection_window, width=50, height=20)
+        listbox = tk.Listbox(selection_window, width=70, height=70)
         listbox.pack()
 
-        for idx, img_path in enumerate(self.generated_images):
+        for idx, (img_path, _) in enumerate(self.generated_data):
             listbox.insert(tk.END, f"{idx + 1}. {img_path}")
 
         def on_select(event):
             if listbox.curselection():
                 selected_index = listbox.curselection()[0]
-                selected_image_path = self.generated_images[selected_index]
+                selected_image_path, selected_regex = self.generated_data[selected_index]
                 self.display_image(selected_image_path)
+                self.entry.delete(0, tk.END)
+                self.entry.insert(0, selected_regex)
                 selection_window.destroy()
 
         listbox.bind('<<ListboxSelect>>', on_select)
@@ -77,14 +78,15 @@ class AutomataGUI:
         try:
             with open(self.register_file, "r") as file:
                 for line in file:
-                    self.generated_images.append(line.strip())
+                    img_path, regex = line.strip().split(',', 1)
+                    self.generated_data.append((img_path, regex))
         except FileNotFoundError:
             pass
 
     def write_register(self):
         with open(self.register_file, "w") as file:
-            for img_path in self.generated_images:
-                file.write(f"{img_path}\n")
+            for img_path, regex in self.generated_data:
+                file.write(f"{img_path},{regex}\n")
 
 if __name__ == "__main__":
     root = tk.Tk()
