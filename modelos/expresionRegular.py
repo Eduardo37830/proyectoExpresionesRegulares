@@ -22,7 +22,7 @@ class Automata:
         return self.current_state in self.accepting_states
 
     def draw(self):
-        graph = pydot.Dot(graph_type='digraph')
+        graph = pydot.Dot(graph_type='digraph', rankdir='LR') #rankdir='LR' para orientar el grafo horizontalmente
 
         # Agregar nodos
         for state in self.states:
