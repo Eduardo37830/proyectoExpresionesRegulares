@@ -3,7 +3,6 @@ from tkinter import filedialog, messagebox
 from PIL import Image, ImageTk
 from controladores.controladorExpresion import ControladorExpresion
 
-
 class AutomataGUI:
     def __init__(self, master):
         self.master = master
@@ -44,6 +43,21 @@ class AutomataGUI:
         self.image_label2 = tk.Label(master)
         self.image_label2.pack()
 
+        self.intersection_button = tk.Button(
+            master, text="Intersección", command=self.intersect_automata)
+        self.intersection_button.pack()
+
+        self.reverse_button1 = tk.Button(
+            master, text="Inversión Primer Autómata", command=lambda: self.reverse_automaton(1))
+        self.reverse_button1.pack()
+
+        self.reverse_button2 = tk.Button(
+            master, text="Inversión Segundo Autómata", command=lambda: self.reverse_automaton(2))
+        self.reverse_button2.pack()
+
+        self.image_label_result = tk.Label(master)
+        self.image_label_result.pack()
+
         self.generated_data = []  # Almacenamos tuplas de (ruta_de_imagen, expresion_regular)
         self.register_file = "automata_register.txt"
         self.read_register()
@@ -73,9 +87,12 @@ class AutomataGUI:
             if automaton_number == 1:
                 self.image_label1.config(image=photo)
                 self.image_label1.image = photo
-            else:
+            elif automaton_number == 2:
                 self.image_label2.config(image=photo)
                 self.image_label2.image = photo
+            else:
+                self.image_label_result.config(image=photo)
+                self.image_label_result.image = photo
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo cargar la imagen del autómata: {str(e)}")
 
@@ -118,6 +135,37 @@ class AutomataGUI:
             for img_path, regex in self.generated_data:
                 file.write(f"{img_path},{regex}\n")
 
+    def intersect_automata(self):
+        try:
+            regex1 = self.entry1.get()
+            regex2 = self.entry2.get()
+            if regex1 and regex2:
+                automaton1 = ControladorExpresion.build_automaton_from_regex(regex1)
+                automaton2 = ControladorExpresion.build_automaton_from_regex(regex2)
+                result_automaton = automaton1.intersect(automaton2)
+                image_path = result_automaton.draw()
+                self.display_image(image_path, 'result')
+            else:
+                messagebox.showwarning("Advertencia", "Por favor, ingrese ambas expresiones regulares.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Ocurrió un error al realizar la intersección: {str(e)}")
+
+    def reverse_automaton(self, automaton_number):
+        try:
+            if automaton_number == 1:
+                regex = self.entry1.get()
+            else:
+                regex = self.entry2.get()
+
+            if regex:
+                automaton = ControladorExpresion.build_automaton_from_regex(regex)
+                result_automaton = automaton.reverse()
+                image_path = result_automaton.draw()
+                self.display_image(image_path, 'result')
+            else:
+                messagebox.showwarning("Advertencia", "Por favor, ingrese una expresión regular.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Ocurrió un error al realizar el reverso: {str(e)}")
 
 if __name__ == "__main__":
     root = tk.Tk()
