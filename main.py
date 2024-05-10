@@ -1,103 +1,94 @@
-from modelos.expresionRegular import Automata
+import tkinter as tk
+from tkinter import filedialog, messagebox
+from PIL import Image, ImageTk
+from controladores.controladorExpresion import ControladorExpresion
 
-class ControladorExpresion:
-    @staticmethod
-    def build_automaton_from_regex(regex):
-        states = set()
-        alphabet = set()
-        transitions = {}
-        initial_state = 'q0'
-        accepting_states = set()
+class AutomataGUI:
+    def __init__(self, master):
+        self.master = master
+        self.master.title('Visualizador de Autómatas')
+        self.master.geometry("1920x1080")
 
-        def add_transition(from_state, to_state, input_symbol):
-            nonlocal states, alphabet, transitions
-            states.add(from_state)
-            states.add(to_state)
-            alphabet.add(input_symbol)
-            transitions[(from_state, input_symbol)] = to_state
+        self.label = tk.Label(master, text="Ingrese la expresión regular:")
+        self.label.pack()
 
-        def parse_regex(substr, start_state):
-            nonlocal accepting_states
-    
-            current_state = start_state
-            last_state_in_group = None  # Mantenemos el último estado del grupo
-            def find_closing_parenthesis(substr, start_index):
-                count = 0
-                for i in range(start_index, len(substr)):
-                    if substr[i] == '(':
-                        count += 1
-                    elif substr[i] == ')':
-                        count -= 1
-                        if count == 0:
-                            return i
-                return -1
-            i = 0
+        self.entry = tk.Entry(master)
+        self.entry.pack()
 
-            while i < len(substr):
-                if i < len(substr) - 1 and substr[i + 1] == '*':
-                    new_state = 'q' + str(len(states) + 1)
-                    add_transition(current_state, current_state, substr[i])
-                    i += 1
-                elif i < len(substr) - 1 and substr[i + 1] == "+":
-                    new_state = 'q' + str(len(states) + 1)
-                    add_transition(current_state, new_state, substr[i])
-                    add_transition(new_state, new_state, substr[i])
-                    current_state = new_state
-                    i += 1
-                elif i < len(substr) - 1 and substr[i + 1] == '?':
-                    new_state = 'q' + str(len(states) + 1)
-                    accepting_states.add(current_state)
-                    add_transition(current_state, new_state, substr[i])
-                    current_state = new_state
-                    i += 1  # Incrementamos i para saltar el operador '?'
+        self.generate_button = tk.Button(
+            master, text="Generar y Mostrar Autómata", command=self.generate_automaton)
+        self.generate_button.pack()
 
-                elif substr[i] == '|':
-                    accepting_states.add(current_state)
-                    current_state = start_state
-                elif substr[i] == '(':
-                    
-                    group_end = find_closing_parenthesis(substr, i)
-                    if group_end != -1:
-                        group_substr = substr[i + 1:group_end]
-                        group_start_state = current_state
-                        
-                        last_state_in_group = parse_regex(group_substr, group_start_state)
-                        i = group_end
-                        current_state = last_state_in_group  # Volvemos al último estado del grupo
-                        
-                        # Si el próximo carácter después del grupo es '*', creamos una transición de vuelta al primer estado del grupo
-                        if i < len(substr) - 1 and substr[i + 1] == '*':
-                            add_transition(last_state_in_group, group_start_state, '')
-                            accepting_states.add(group_start_state)                        
-                        if i < len(substr) - 1 and substr[i+1] == '+':
-                            add_transition(last_state_in_group, last_state_in_group, substr[i-2])
-                            accepting_states.add(last_state_in_group)
-                        elif substr[i] == '|':
-                            accepting_states.add(current_state)
-                            current_state = group_start_state                        
-                        i +=1
-                    elif substr[i] == ')':
-                        break
+        self.select_button = tk.Button(
+            master, text="Seleccionar Autómata", command=self.seleccionar_automata)
+        self.select_button.pack()
 
-                else:
-                    new_state = 'q' + str(len(states) + 1)
-                    add_transition(current_state, new_state, substr[i])
-                    current_state = new_state
-                i += 1  
-            accepting_states.add(current_state)
-            # Devolvemos el último estado del grupo para referencia
-            return last_state_in_group if last_state_in_group else current_state
-            
-        parse_regex(regex, initial_state)
+        self.image_label = tk.Label(master)
+        self.image_label.pack()
 
-        # Marcar el último estado como de aceptación fuera del grupo
-        
+        self.generated_data = []  # Almacenamos tuplas de (ruta_de_imagen, expresion_regular)
+        self.register_file = "automata_register.txt"
+        self.read_register()
 
-        return Automata(states, alphabet, transitions, initial_state, accepting_states)
+    def generate_automaton(self):
+        regex = self.entry.get()
+        if regex:
+            try:
+                automaton = ControladorExpresion.build_automaton_from_regex(regex)
+                image_path = automaton.draw()
+                self.generated_data.append((image_path, regex))  # Guardar tupla
+                self.display_image(image_path)
+                self.write_register()
+            except Exception as e:
+                messagebox.showerror("Error", f"Ocurrió un error al generar el autómata: {str(e)}")
+        else:
+            messagebox.showwarning("Advertencia", "Por favor, ingrese una expresión regular.")
 
+    def display_image(self, image_path):
+        try:
+            image = Image.open(image_path)
+            photo = ImageTk.PhotoImage(image)
+            self.image_label.config(image=photo)
+            self.image_label.image = photo
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo cargar la imagen del autómata: {str(e)}")
 
-# Ejemplo de uso
-regex = input("Ingrese la expresión regular: ")
-automaton = ControladorExpresion.build_automaton_from_regex(regex)
-print("Estados del autómata:", automaton.states)
-automaton.draw()
+    def seleccionar_automata(self):
+        selection_window = tk.Toplevel(self.master)
+        selection_window.geometry("800x600")
+        selection_window.title("Seleccione un Autómata")
+        listbox = tk.Listbox(selection_window, width=70, height=70)
+        listbox.pack()
+
+        for idx, (img_path, _) in enumerate(self.generated_data):
+            listbox.insert(tk.END, f"{idx + 1}. {img_path}")
+
+        def on_select(event):
+            if listbox.curselection():
+                selected_index = listbox.curselection()[0]
+                selected_image_path, selected_regex = self.generated_data[selected_index]
+                self.display_image(selected_image_path)
+                self.entry.delete(0, tk.END)
+                self.entry.insert(0, selected_regex)
+                selection_window.destroy()
+
+        listbox.bind('<<ListboxSelect>>', on_select)
+
+    def read_register(self):
+        try:
+            with open(self.register_file, "r") as file:
+                for line in file:
+                    img_path, regex = line.strip().split(',', 1)
+                    self.generated_data.append((img_path, regex))
+        except FileNotFoundError:
+            pass
+
+    def write_register(self):
+        with open(self.register_file, "w") as file:
+            for img_path, regex in self.generated_data:
+                file.write(f"{img_path},{regex}\n")
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    my_gui = AutomataGUI(root)
+    root.mainloop()
