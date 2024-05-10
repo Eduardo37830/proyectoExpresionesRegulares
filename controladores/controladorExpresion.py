@@ -1,5 +1,6 @@
 from modelos.expresionRegular import Automata
 
+
 class ControladorExpresion:
     @staticmethod
     def build_automaton_from_regex(regex):
@@ -71,13 +72,20 @@ class ControladorExpresion:
                         if i < len(substr) - 1 and substr[i + 1] == '*':
                             add_transition(last_state_in_group, group_start_state, '')
                             accepting_states.add(group_start_state)
-                        if i < len(substr) - 1 and substr[i + 1] == '+':
-                            add_transition(last_state_in_group, last_state_in_group, substr[i - 2])
+                            i += 1
+                        elif i < len(substr) - 1 and substr[i + 1] == '+':
+                            add_transition(last_state_in_group, last_state_in_group, substr[i - 2] and substr[i - 1])
                             accepting_states.add(last_state_in_group)
-                        elif substr[i] == '|':
+                            i += 1
+                        elif i < len(substr) - 1 and substr[i + 1] == '|':
                             accepting_states.add(current_state)
                             current_state = group_start_state
-                        i += 1
+                            i += 1
+                        elif i < len(substr) - 1 and substr[i + 1] == alphabet:
+                            new_state = 'q' + str(len(states) + 1)
+                            add_transition(current_state, new_state, substr[i])
+                            current_state = new_state
+                            i += 1
                     elif substr[i] == ')':
                         break
 
@@ -95,10 +103,3 @@ class ControladorExpresion:
         # Marcar el último estado como de aceptación fuera del grupo
 
         return Automata(states, alphabet, transitions, initial_state, accepting_states)
-
-
-"""# Ejemplo de uso
-regex = input("Ingrese la expresión regular: ")
-automaton = ControladorExpresion.build_automaton_from_regex(regex)
-print("Estados del autómata:", automaton.states)
-automaton.draw()"""
