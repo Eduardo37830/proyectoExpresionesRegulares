@@ -7,56 +7,71 @@ class AutomataGUI:
     def __init__(self, master):
         self.master = master
         self.master.title('Visualizador de Autómatas')
-        self.master.geometry("1920x1080")
+        self.master.geometry("1200x800")
 
-        self.label1 = tk.Label(master, text="Ingrese la expresión regular para el primer autómata:")
-        self.label1.pack()
+        # Set the background color
+        self.master.configure(bg='#f0f0f0')
 
-        self.entry1 = tk.Entry(master)
-        self.entry1.pack()
+        # Create a frame for the first automaton input and buttons
+        self.frame1 = tk.Frame(master, bg='#f0f0f0')
+        self.frame1.pack(pady=10)
+
+        self.label1 = tk.Label(self.frame1, text="Ingrese la expresión regular para el primer autómata:", bg='#f0f0f0', font=('Helvetica', 12))
+        self.label1.pack(side=tk.LEFT, padx=5)
+
+        self.entry1 = tk.Entry(self.frame1, font=('Helvetica', 12))
+        self.entry1.pack(side=tk.LEFT, padx=5)
 
         self.generate_button1 = tk.Button(
-            master, text="Generar y Mostrar Primer Autómata", command=lambda: self.generate_automaton(1))
-        self.generate_button1.pack()
+            self.frame1, text="Generar y Mostrar Primer Autómata", command=lambda: self.generate_automaton(1), font=('Helvetica', 12), bg='#4CAF50', fg='white')
+        self.generate_button1.pack(side=tk.LEFT, padx=5)
 
         self.select_button1 = tk.Button(
-            master, text="Seleccionar Primer Autómata", command=lambda: self.seleccionar_automata(1))
-        self.select_button1.pack()
+            self.frame1, text="Seleccionar Primer Autómata", command=lambda: self.seleccionar_automata(1), font=('Helvetica', 12), bg='#2196F3', fg='white')
+        self.select_button1.pack(side=tk.LEFT, padx=5)
 
-        self.image_label1 = tk.Label(master)
-        self.image_label1.pack()
+        self.image_label1 = tk.Label(master, bg='#f0f0f0')
+        self.image_label1.pack(pady=10)
 
-        self.label2 = tk.Label(master, text="Ingrese la expresión regular para el segundo autómata:")
-        self.label2.pack()
+        # Create a frame for the second automaton input and buttons
+        self.frame2 = tk.Frame(master, bg='#f0f0f0')
+        self.frame2.pack(pady=10)
 
-        self.entry2 = tk.Entry(master)
-        self.entry2.pack()
+        self.label2 = tk.Label(self.frame2, text="Ingrese la expresión regular para el segundo autómata:", bg='#f0f0f0', font=('Helvetica', 12))
+        self.label2.pack(side=tk.LEFT, padx=5)
+
+        self.entry2 = tk.Entry(self.frame2, font=('Helvetica', 12))
+        self.entry2.pack(side=tk.LEFT, padx=5)
 
         self.generate_button2 = tk.Button(
-            master, text="Generar y Mostrar Segundo Autómata", command=lambda: self.generate_automaton(2))
-        self.generate_button2.pack()
+            self.frame2, text="Generar y Mostrar Segundo Autómata", command=lambda: self.generate_automaton(2), font=('Helvetica', 12), bg='#4CAF50', fg='white')
+        self.generate_button2.pack(side=tk.LEFT, padx=5)
 
         self.select_button2 = tk.Button(
-            master, text="Seleccionar Segundo Autómata", command=lambda: self.seleccionar_automata(2))
-        self.select_button2.pack()
+            self.frame2, text="Seleccionar Segundo Autómata", command=lambda: self.seleccionar_automata(2), font=('Helvetica', 12), bg='#2196F3', fg='white')
+        self.select_button2.pack(side=tk.LEFT, padx=5)
 
-        self.image_label2 = tk.Label(master)
-        self.image_label2.pack()
+        self.image_label2 = tk.Label(master, bg='#f0f0f0')
+        self.image_label2.pack(pady=10)
+
+        # Create a frame for the intersection and reverse buttons
+        self.frame3 = tk.Frame(master, bg='#f0f0f0')
+        self.frame3.pack(pady=10)
 
         self.intersection_button = tk.Button(
-            master, text="Intersección", command=self.perform_intersection)
-        self.intersection_button.pack()
+            self.frame3, text="Intersección", command=self.perform_intersection, font=('Helvetica', 12), bg='#FF9800', fg='white')
+        self.intersection_button.pack(side=tk.LEFT, padx=5)
 
         self.reverse_button1 = tk.Button(
-            master, text="Inversión Primer Autómata", command=lambda: self.reverse_automaton(1))
-        self.reverse_button1.pack()
+            self.frame3, text="Inversión Primer Autómata", command=lambda: self.reverse_automaton(1), font=('Helvetica', 12), bg='#FF5722', fg='white')
+        self.reverse_button1.pack(side=tk.LEFT, padx=5)
 
         self.reverse_button2 = tk.Button(
-            master, text="Inversión Segundo Autómata", command=lambda: self.reverse_automaton(2))
-        self.reverse_button2.pack()
+            self.frame3, text="Inversión Segundo Autómata", command=lambda: self.reverse_automaton(2), font=('Helvetica', 12), bg='#FF5722', fg='white')
+        self.reverse_button2.pack(side=tk.LEFT, padx=5)
 
-        self.image_label_result = tk.Label(master)
-        self.image_label_result.pack()
+        self.image_label_result = tk.Label(master, bg='#f0f0f0')
+        self.image_label_result.pack(pady=10)
 
         self.generated_data = []  # Almacenamos tuplas de (ruta_de_imagen, expresion_regular)
         self.register_file = "automata_register.txt"
