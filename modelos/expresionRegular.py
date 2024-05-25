@@ -24,20 +24,52 @@ class Automata:
     def is_accepting(self):
         return self.current_state in self.accepting_states
 
+    def intersect(self, other):
+        # Definir nuevos estados, transiciones y estados de aceptación
+        new_states = set()
+        new_transitions = {}
+        new_accepting_states = set()
+
+        # Obtener todas las combinaciones de estados
+        for state1 in self.states:
+            for state2 in other.states:
+                new_state = (state1, state2)
+                new_states.add(new_state)
+
+                # Si ambos estados son estados de aceptación en sus respectivos autómatas, entonces el nuevo estado también es de aceptación
+                if state1 in self.accepting_states and state2 in other.accepting_states:
+                    new_accepting_states.add(new_state)
+
+                # Verificar todas las combinaciones de transiciones
+                for symbol in self.alphabet:
+                    if (state1, symbol) in self.transitions and (state2, symbol) in other.transitions:
+                        new_transitions[(new_state, symbol)] = (
+                            self.transitions[(state1, symbol)], other.transitions[(state2, symbol)]
+                        )
+
+        # Crear un nuevo autómata con los estados, transiciones y estados de aceptación calculados
+        intersected_automaton = Automata(new_states, self.alphabet, new_transitions,
+                                         (self.initial_state, other.initial_state), new_accepting_states)
+
+        return intersected_automaton
+
     def draw(self):
         graph = pydot.Dot(graph_type='digraph', rankdir='LR')
 
         # Add nodes
         for state in self.states:
-            node = pydot.Node(state)
+            state_name = '-'.join(state) if isinstance(state, tuple) else state
+            node = pydot.Node(state_name)  # Convert state to a more readable string
             if state in self.accepting_states:
                 node.set_shape('doublecircle')
             graph.add_node(node)
 
         # Add edges
         for (from_state, input_symbol), to_state in self.transitions.items():
+            from_state_name = '-'.join(from_state) if isinstance(from_state, tuple) else from_state
+            to_state_name = '-'.join(to_state) if isinstance(to_state, tuple) else to_state
             label = input_symbol if input_symbol else "ε"
-            edge = pydot.Edge(from_state, to_state, label=label)
+            edge = pydot.Edge(from_state_name, to_state_name, label=label)
             graph.add_edge(edge)
 
         folder_path = 'imagenesGeneradas'
@@ -51,18 +83,6 @@ class Automata:
         filename_png = f'{folder_path}/automata_{filename_hash}_{Automata.counter}.png'
         graph.write_png(filename_png, encoding='utf-8')
         return filename_png
-
-    def intersect(self, other):
-        new_states = set((s1, s2) for s1 in self.states for s2 in other.states)
-        new_alphabet = self.alphabet.intersection(other.alphabet)
-        new_transitions = {}
-        for ((s1, a), s1_dest) in self.transitions.items():
-            for ((s2, b), s2_dest) in other.transitions.items():
-                if a == b:
-                    new_transitions[((s1, s2), a)] = (s1_dest, s2_dest)
-        new_initial_state = (self.initial_state, other.initial_state)
-        new_accepting_states = set((s1, s2) for s1 in self.accepting_states for s2 in other.accepting_states)
-        return Automata(new_states, new_alphabet, new_transitions, new_initial_state, new_accepting_states)
 
     def reverse(self):
         new_transitions = {}

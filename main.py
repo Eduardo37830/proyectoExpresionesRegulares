@@ -44,7 +44,7 @@ class AutomataGUI:
         self.image_label2.pack()
 
         self.intersection_button = tk.Button(
-            master, text="Intersección", command=self.intersect_automata)
+            master, text="Intersección", command=self.perform_intersection)
         self.intersection_button.pack()
 
         self.reverse_button1 = tk.Button(
@@ -135,21 +135,6 @@ class AutomataGUI:
             for img_path, regex in self.generated_data:
                 file.write(f"{img_path},{regex}\n")
 
-    def intersect_automata(self):
-        try:
-            regex1 = self.entry1.get()
-            regex2 = self.entry2.get()
-            if regex1 and regex2:
-                automaton1 = ControladorExpresion.build_automaton_from_regex(regex1)
-                automaton2 = ControladorExpresion.build_automaton_from_regex(regex2)
-                result_automaton = automaton1.intersect(automaton2)
-                image_path = result_automaton.draw()
-                self.display_image(image_path, 'result')
-            else:
-                messagebox.showwarning("Advertencia", "Por favor, ingrese ambas expresiones regulares.")
-        except Exception as e:
-            messagebox.showerror("Error", f"Ocurrió un error al realizar la intersección: {str(e)}")
-
     def reverse_automaton(self, automaton_number):
         try:
             if automaton_number == 1:
@@ -166,6 +151,23 @@ class AutomataGUI:
                 messagebox.showwarning("Advertencia", "Por favor, ingrese una expresión regular.")
         except Exception as e:
             messagebox.showerror("Error", f"Ocurrió un error al realizar el reverso: {str(e)}")
+
+    def perform_intersection(self):
+        regex1 = self.entry1.get()
+        regex2 = self.entry2.get()
+
+        if regex1 and regex2:
+            try:
+                automaton1 = ControladorExpresion.build_automaton_from_regex(regex1)
+                automaton2 = ControladorExpresion.build_automaton_from_regex(regex2)
+
+                intersected_automaton = automaton1.intersect(automaton2)
+                image_path = intersected_automaton.draw()
+                self.display_image(image_path, 'result')
+            except Exception as e:
+                messagebox.showerror("Error", f"Ocurrió un error al realizar la intersección: {str(e)}")
+        else:
+            messagebox.showwarning("Advertencia", "Por favor, ingrese expresiones regulares para ambos autómatas.")
 
 if __name__ == "__main__":
     root = tk.Tk()
